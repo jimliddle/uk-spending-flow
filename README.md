@@ -2,6 +2,9 @@
 
 An interactive Sankey diagram of UK public finances. Based on the Office for Budget Responsibility's 2025-26 forecast.
 
+<img width="1138.5" height="1185.5" alt="screenshot" src="https://github.com/user-attachments/assets/8514defc-81e7-4d4c-8800-801295e30874" />
+
+
 ## Notes on scope and method
 
 Figures are the OBR's March 2026 forecast for 2025-26. Later ONS provisional outturn data (April–May 2026) put borrowing at around £129bn, about £4bn below the £133bn forecast used here; final figures will be revised again.
