@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Where the money comes from and goes — UK public finances 2025-26 forecast</title>
+<style>
+:root{--bg:#f5f7fb;--ink:#172033;--muted:#65758b;--card:#fff;--line:#d9e2ef;--blue:#2457a6;--green:#12715b;--amber:#9a5b00;--shadow:0 10px 24px rgba(31,49,82,.10);
+--recv:#1d9e75;--recv2:#e6f5ef;--spend:#d8602f;--spend2:#fbeadf;--borrow:#7c889c;--borrow2:#eef1f6}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--ink)}
+header{background:linear-gradient(135deg,#14243b,#2457a6 62%,#2c8b77);color:#fff;padding:30px 28px 24px}
+header h1{margin:0 0 6px;font-size:30px;letter-spacing:-.6px}
+header p{margin:0;color:#dce8ff;max-width:1000px;line-height:1.45}
+main{padding:22px;max-width:1100px;margin:0 auto}
+.controls{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:4px 0 8px}
+.toggle{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:#fff}
+.toggle button{border:0;background:#fff;padding:9px 16px;cursor:pointer;font-weight:650;color:#31415b;font-size:14px}
+.toggle button.active{background:#173d75;color:#fff}
+.legend{display:flex;gap:16px;flex-wrap:wrap;color:var(--muted);font-size:13px;align-items:center}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:13px;height:13px;border-radius:3px;display:inline-block}
+.card{background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:10px 8px;position:relative;margin:10px 0}
+.chartwrap{position:relative;width:100%}
+svg{width:100%;height:auto;display:block}
+.ribbon{cursor:pointer;transition:opacity .12s}
+.node{cursor:pointer}
+.nlabel{font-size:13.5px;fill:var(--ink)}
+.nval{font-size:12.5px;fill:var(--muted)}
+.hubcap{font-size:15px;fill:var(--ink);font-weight:650}
+.hubsub{font-size:12.5px;fill:var(--muted)}
+.chartwrap.hovering .ribbon{opacity:.1}
+.chartwrap.hovering .ribbon.active{opacity:.85}
+.tip{position:absolute;pointer-events:none;background:#172033;color:#fff;padding:8px 10px;border-radius:8px;font-size:12.5px;line-height:1.4;box-shadow:0 6px 18px rgba(0,0,0,.22);opacity:0;transition:opacity .1s;max-width:230px;z-index:5}
+.tip b{font-weight:650}
+.tip .pct{color:#bcd2ff}
+.footer{margin:18px 2px;color:var(--muted);font-size:13px;line-height:1.5}
+.footer b{color:#31415b}
+.footer a{color:var(--blue)}
+details.data-table{margin:14px 2px 4px}
+details.data-table summary{cursor:pointer;font-weight:650;color:#31415b;margin-bottom:10px}
+table{width:100%;border-collapse:collapse;font-size:13px;background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+caption{text-align:left;font-weight:650;margin:0 0 8px;color:#31415b}
+th,td{border-top:1px solid var(--line);padding:8px 10px;text-align:left}
+th{background:#eef3fb;color:#31415b}
+td.num{text-align:right;font-variant-numeric:tabular-nums}
+tr.total td{font-weight:700;background:#f7f9fd}
+.ribbon:focus,.node:focus{outline:3px solid #173d75;outline-offset:3px}
+@media(max-width:760px){header h1{font-size:24px}.nlabel,.nval{font-size:11px}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Where the money comes from and goes</h1>
+  <p>UK public finances, 2025-26 forecast. Every pound the state raises and borrows on the left, pooled into total spending in the middle, and where it goes on the right. Ribbon width is proportional to the amount. Hover or focus any flow for detail.</p>
+</header>
+<main>
+  <div class="controls">
+    <div class="toggle" role="group" aria-label="Value display">
+      <button id="btnCash" class="active" type="button" aria-pressed="true">Cash (£bn)</button>
+      <button id="btnPct" type="button" aria-pressed="false">Share (%)</button>
+    </div>
+    <div class="legend">
+      <span><i class="sw" style="background:var(--recv)"></i>Receipts</span>
+      <span><i class="sw" style="background:var(--borrow)"></i>Borrowing</span>
+      <span><i class="sw" style="background:var(--spend)"></i>Spending</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="chartwrap" id="wrap">
+      <svg id="svg" viewBox="0 0 1000 800" role="img" aria-label="Sankey diagram of UK public finances 2025-26 forecast: receipts and borrowing flowing into total managed expenditure and out to simplified spending categories."></svg>
+      <div class="tip" id="tip" role="status" aria-live="polite"></div>
+    </div>
+  </div>
+
+  <details class="data-table">
+    <summary>Show data table</summary>
+    <table aria-describedby="table-note">
+      <caption>Underlying rounded forecast figures used in the chart</caption>
+      <thead><tr><th scope="col">Side</th><th scope="col">Category</th><th scope="col">Amount</th><th scope="col">Share of total spending</th></tr></thead>
+      <tbody>
+        <tr><td>Receipts</td><td>Income tax</td><td class="num">£329bn</td><td class="num">24.0%</td></tr>
+        <tr><td>Receipts</td><td>National insurance</td><td class="num">£201bn</td><td class="num">14.7%</td></tr>
+        <tr><td>Receipts</td><td>VAT</td><td class="num">£180bn</td><td class="num">13.2%</td></tr>
+        <tr><td>Receipts</td><td>Corporation tax</td><td class="num">£96bn</td><td class="num">7.0%</td></tr>
+        <tr><td>Receipts</td><td>Council tax</td><td class="num">£51bn</td><td class="num">3.7%</td></tr>
+        <tr><td>Receipts</td><td>Business rates</td><td class="num">£34bn</td><td class="num">2.5%</td></tr>
+        <tr><td>Receipts</td><td>Fuel duty</td><td class="num">£24bn</td><td class="num">1.8%</td></tr>
+        <tr><td>Receipts</td><td>Other taxes &amp; duties</td><td class="num">£188bn</td><td class="num">13.7%</td></tr>
+        <tr><td>Receipts</td><td>Other (non-tax) receipts</td><td class="num">£132bn</td><td class="num">9.6%</td></tr>
+        <tr><td>Borrowing</td><td>Borrowing (deficit)</td><td class="num">£133bn</td><td class="num">9.7%</td></tr>
+        <tr class="total"><td colspan="2">Total inflows</td><td class="num">£1,368bn</td><td class="num">100.0%</td></tr>
+        <tr><td>Spending</td><td>Social protection</td><td class="num">£379bn</td><td class="num">27.7%</td></tr>
+        <tr><td>Spending</td><td>Health</td><td class="num">£277bn</td><td class="num">20.2%</td></tr>
+        <tr><td>Spending</td><td>Education</td><td class="num">£146bn</td><td class="num">10.7%</td></tr>
+        <tr><td>Spending</td><td>Debt interest</td><td class="num">£110bn</td><td class="num">8.0%</td></tr>
+        <tr><td>Spending</td><td>Economic affairs</td><td class="num">£85bn</td><td class="num">6.2%</td></tr>
+        <tr><td>Spending</td><td>Defence</td><td class="num">£62bn</td><td class="num">4.5%</td></tr>
+        <tr><td>Spending</td><td>Public order &amp; safety</td><td class="num">£48bn</td><td class="num">3.5%</td></tr>
+        <tr><td>Spending</td><td>Other &amp; adjustments</td><td class="num">£261bn</td><td class="num">19.1%</td></tr>
+        <tr class="total"><td colspan="2">Total spending</td><td class="num">£1,368bn</td><td class="num">100.0%</td></tr>
+      </tbody>
+    </table>
+    <p id="table-note" class="footer">Values are rounded to the nearest £bn; percentages are shares of total spending and may not sum exactly because of rounding.</p>
+  </details>
+
+  <div class="footer">
+    <p><b>What this is.</b> A flow picture of national public finances — a different thing from the Tax Atlas, which catalogues the <i>mechanisms</i> of taxation without amounts. This chart needs magnitudes, so it uses rounded 2025-26 forecast figures from the Office for Budget Responsibility's March 2026 public-finance forecast, supplemented by ONS and House of Commons Library material where noted.</p>
+    <p><b>Notes.</b> Figures are approximate and rounded, and totals balance by construction. "Other taxes" bundles capital gains tax, inheritance tax, stamp taxes, alcohol, tobacco, vehicle, gambling and environmental duties, customs and the rest. "Other receipts" is non-tax income such as interest and public-corporation surpluses. The spending categories are simplified: they combine broad functions with selected accounting lines, and "Other &amp; adjustments" is the residual covering general public services, most local-authority services, housing, environment, culture, depreciation and other national-accounts adjustments. The <b>£133bn gap</b> between receipts (~£1,235bn) and spending (~£1,368bn) is funded by borrowing, shown as an inflow so that in = out. Subsequent ONS/OBR monthly releases may revise the estimated 2025-26 outturn.</p>
+    <p><b>On defence.</b> The £62bn shown is the Ministry of Defence's departmental budget for 2025-26 (2025 Spending Review: £62.2bn). On NATO's broader definition — which adds items such as armed-forces pensions and some intelligence spending — UK defence spending is around £70bn in 2025, roughly 2.4% of GDP. That wider measure, not the departmental budget, is the one behind the commitments to 2.5% by 2027 (2.6% including intelligence) and 3.5% by 2035. The chart uses the budget figure to stay consistent with the other spending lines.</p>
+    <p><b>Sources:</b> OBR <a href="https://obr.uk/forecasts-in-depth/brief-guides-and-explainers/public-finances/">brief guide to the public finances</a> and March 2026 forecast; OBR tax-by-tax/spend-by-spend explainers; ONS <i>Public sector finances</i>; HM Treasury <i>Spending Review 2025</i>; House of Commons Library. Note: the ONS provisional outturn for 2025-26 (published April–May 2026) put borrowing at around £129bn, about £4bn below the £133bn OBR March 2026 forecast used in this chart. Verify current figures against the latest OBR/ONS releases. For education only — not financial advice.</p>
+  </div>
+</main>
+
+<script>
+const TOTAL=1368;
+const sources=[
+ {name:"Income tax",val:329,kind:"recv"},
+ {name:"National insurance",val:201,kind:"recv"},
+ {name:"VAT",val:180,kind:"recv"},
+ {name:"Corporation tax",val:96,kind:"recv"},
+ {name:"Council tax",val:51,kind:"recv"},
+ {name:"Business rates",val:34,kind:"recv"},
+ {name:"Fuel duty",val:24,kind:"recv"},
+ {name:"Other taxes & duties",val:188,kind:"recv"},
+ {name:"Other (non-tax) receipts",val:132,kind:"recv"},
+ {name:"Borrowing (deficit)",val:133,kind:"borrow"},
+];
+const dests=[
+ {name:"Social protection",val:379},
+ {name:"Health",val:277},
+ {name:"Education",val:146},
+ {name:"Debt interest",val:110},
+ {name:"Economic affairs",val:85},
+ {name:"Defence",val:62},
+ {name:"Public order & safety",val:48},
+ {name:"Other & adjustments",val:261},
+];
+const COL={recv:"#1d9e75",borrow:"#7c889c",spend:"#d8602f"};
+
+const W=1000, flowH=620, mid=410, gap=12;
+const s=flowH/TOTAL;
+const hubTop=mid-flowH/2, hubH=flowH;
+const leftNodeX=300, hubX=493, hubW=16, rightNodeX=686, nodeW=14;
+const lRibX=leftNodeX+nodeW, hubL=hubX, hubR=hubX+hubW, rRibX=rightNodeX;
+const leftLabelX=leftNodeX-12, rightLabelX=rightNodeX+nodeW+12;
+
+function cols(items){
+ const h=items.map(d=>d.val*s);
+ const colH=h.reduce((a,b)=>a+b,0)+gap*(items.length-1);
+ let y=mid-colH/2; const tops=[];
+ for(const hh of h){tops.push(y); y+=hh+gap;}
+ return {tops,h};
+}
+function flush(items){let y=hubTop;const t=[];for(const d of items){t.push(y);y+=d.val*s;}return t;}
+
+const L=cols(sources), R=cols(dests);
+const hubLTops=flush(sources), hubRTops=flush(dests);
+
+function ribbonPath(xL,aTop,h,xR,bTop){
+ const cx=(xL+xR)/2,aB=aTop+h,bB=bTop+h;
+ return `M${xL},${aTop.toFixed(1)} C${cx},${aTop.toFixed(1)} ${cx},${bTop.toFixed(1)} ${xR},${bTop.toFixed(1)} L${xR},${bB.toFixed(1)} C${cx},${bB.toFixed(1)} ${cx},${aB.toFixed(1)} ${xL},${aB.toFixed(1)} Z`;
+}
+function pct(v){return (v/TOTAL*100).toFixed(1)+"%";}
+function gbp(v){return "£"+v+"bn";}
+function flowLabel(d){return `${d.side}: ${d.name}, ${gbp(d.val)}, ${pct(d.val)} of total spending`; }
+
+const NS="http://www.w3.org/2000/svg";
+const svg=document.getElementById("svg");
+function el(tag,attrs){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);return e;}
+const labelEls=[]; // {el, name, val}
+
+function addRibbon(d,path,color,opacity){
+ const p=el("path",{d:path,fill:color,"fill-opacity":opacity,stroke:"none",class:"ribbon",tabindex:-1,role:"img","aria-label":flowLabel(d)});
+ const title=el("title",{}); title.textContent=flowLabel(d); p.appendChild(title);
+ p._data=d;
+ p.addEventListener("mouseenter",()=>hoverOn(p,d));
+ p.addEventListener("mousemove",moveTip);
+ p.addEventListener("mouseleave",hoverOff);
+ p.addEventListener("focus",()=>hoverOn(p,d));
+ p.addEventListener("blur",hoverOff);
+ svg.appendChild(p);
+ d._ribbon=p;
+}
+
+// ribbons
+sources.forEach((d,i)=>{
+ d.side=d.kind==="borrow"?"Borrowing":"Receipts";
+ addRibbon(d, ribbonPath(lRibX,L.tops[i],L.h[i],hubL,hubLTops[i]), COL[d.kind], d.kind==="borrow"?0.42:0.5);
+});
+dests.forEach((d,j)=>{
+ d.side="Spending";
+ addRibbon(d, ribbonPath(hubR,hubRTops[j],R.h[j],rRibX,R.tops[j]), COL.spend, 0.42);
+});
+
+// hub
+svg.appendChild(el("rect",{x:hubX,y:hubTop.toFixed(1),width:hubW,height:hubH.toFixed(1),rx:4,fill:"#8a93a6","fill-opacity":0.9}));
+
+// nodes + labels
+function addNode(d,x,top,h,color,labelX,anchor){
+ const r=el("rect",{x:x,y:top.toFixed(1),width:nodeW,height:Math.max(h,2).toFixed(1),rx:2,fill:color,class:"node",tabindex:0,role:"img","aria-label":flowLabel(d._ribbon._data)});
+ const title=el("title",{}); title.textContent=flowLabel(d._ribbon._data); r.appendChild(title);
+ r.addEventListener("mouseenter",()=>hoverOn(d._ribbon,d._ribbon._data));
+ r.addEventListener("mousemove",moveTip);
+ r.addEventListener("mouseleave",hoverOff);
+ r.addEventListener("focus",()=>hoverOn(d._ribbon,d._ribbon._data));
+ r.addEventListener("blur",hoverOff);
+ svg.appendChild(r);
+ const cy=top+h/2;
+ const t1=el("text",{x:labelX,y:(cy-2).toFixed(1),"text-anchor":anchor,class:"nlabel"});t1.textContent=d.name;
+ const t2=el("text",{x:labelX,y:(cy+13).toFixed(1),"text-anchor":anchor,class:"nval"});t2.textContent=gbp(d.val);
+ svg.appendChild(t1);svg.appendChild(t2);
+ labelEls.push({el:t2,val:d.val});
+}
+sources.forEach((d,i)=>addNode(d,leftNodeX,L.tops[i],L.h[i],COL[d.kind],leftLabelX,"end"));
+dests.forEach((d,j)=>addNode(d,rightNodeX,R.tops[j],R.h[j],COL.spend,rightLabelX,"start"));
+
+// hub caption
+const hc=el("text",{x:hubX+hubW/2,y:(hubTop-16).toFixed(1),"text-anchor":"middle",class:"hubcap"});hc.textContent="£1,368bn";
+const hs=el("text",{x:hubX+hubW/2,y:(hubTop-2).toFixed(1),"text-anchor":"middle",class:"hubsub"});hs.textContent="total spending";
+svg.appendChild(hc);svg.appendChild(hs);
+const hb=el("text",{x:hubX+hubW/2,y:(hubTop+hubH+22).toFixed(1),"text-anchor":"middle",class:"hubsub"});
+hb.textContent="in = out · £133bn gap funded by borrowing";svg.appendChild(hb);
+
+// fit viewBox height
+const bottom=Math.max(L.tops[L.tops.length-1]+L.h[L.h.length-1], hubTop+hubH)+40;
+svg.setAttribute("viewBox",`0 0 ${W} ${Math.round(bottom)}`);
+
+// interactivity
+const wrap=document.getElementById("wrap"), tip=document.getElementById("tip");
+function hoverOn(p,d){
+ wrap.classList.add("hovering");
+ document.querySelectorAll(".ribbon.active").forEach(x=>x.classList.remove("active"));
+ p.classList.add("active");
+ tip.innerHTML=`<b>${d.name}</b><br>${gbp(d.val)} &middot; <span class="pct">${pct(d.val)} of total</span><br>${d.side}`;
+ tip.style.opacity=1;
+}
+function hoverOff(){wrap.classList.remove("hovering");tip.style.opacity=0;}
+function moveTip(e){
+ const r=wrap.getBoundingClientRect();
+ const tw=tip.offsetWidth||210, th=tip.offsetHeight||60;
+ let x=e.clientX-r.left+14, y=e.clientY-r.top+14;
+ if(x+tw>r.width) x=e.clientX-r.left-tw-14;
+ if(x<4) x=4;
+ if(y+th>r.height) y=r.height-th-4;
+ tip.style.left=x+"px";tip.style.top=y+"px";
+}
+
+let mode="cash";
+function setMode(m){
+ mode=m;
+ const cashBtn=document.getElementById("btnCash");
+ const pctBtn=document.getElementById("btnPct");
+ cashBtn.classList.toggle("active",m==="cash");
+ pctBtn.classList.toggle("active",m==="pct");
+ cashBtn.setAttribute("aria-pressed",m==="cash"?"true":"false");
+ pctBtn.setAttribute("aria-pressed",m==="pct"?"true":"false");
+ labelEls.forEach(o=>{o.el.textContent = m==="cash"?gbp(o.val):pct(o.val);});
+}
+document.getElementById("btnCash").addEventListener("click",()=>setMode("cash"));
+document.getElementById("btnPct").addEventListener("click",()=>setMode("pct"));
+</script>
+</body>
+</html>
