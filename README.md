@@ -1,6 +1,7 @@
 # Where the Money Goes
 
 An interactive Sankey diagram of UK public finances. Based on the Office for Budget Responsibility's 2025-26 forecast.
+view at: https://jimliddle.github.io/uk-spending-flow/
 
 <img width="1138.5" height="1185.5" alt="screenshot" src="https://github.com/user-attachments/assets/8514defc-81e7-4d4c-8800-801295e30874" />
 
