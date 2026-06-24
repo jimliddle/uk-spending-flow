@@ -21,6 +21,6 @@ OBR Economic and fiscal outlook (Nov 2025) and tax/spending explainers; ONS Publ
 
 Assisted by AI for assembling and cross-checking the figures into one consistent structure, then validated by hand against the OBR, ONS and House of Commons Library sources above.
 
-Disclaimer
+### Disclaimer
 
 For education and orientation only. Not financial advice.
